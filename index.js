@@ -37,7 +37,11 @@ const port = process.env.PORT || 5000;
 // middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: [
+      "http://localhost:5173",
+      // "https://car-doctor-e225f.web.app",
+      // "https://car-doctor-e225f.firebaseapp.com",
+    ],
     credentials: true,
   })
 );
@@ -110,6 +114,12 @@ async function run() {
           secure: false,
         })
         .send({ success: true });
+    });
+
+    app.post("/logout", async (req, res) => {
+      const user = req.body;
+      console.log("LOGGING OUT=>>>>>", user);
+      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
     });
 
     // to get all services data
