@@ -108,10 +108,10 @@ async function run() {
       });
 
       res
-        // set cookie
         .cookie("token", token, {
           httpOnly: true,
-          secure: false,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         })
         .send({ success: true });
     });
@@ -124,7 +124,16 @@ async function run() {
 
     // to get all services data
     app.get("/services", logger, async (req, res) => {
-      const cursor = serviceCollection.find();
+      const filter = req.query;
+      console.log(filter);
+      const query = {
+        // price: { $lt: 150, $gt: 50 },
+        title: { $regex: filter.search, $options: "i" },
+      };
+      const options = {
+        sort: { price: filter.sort === "asc" ? 1 : -1 },
+      };
+      const cursor = serviceCollection.find(query, options);
       const result = await cursor.toArray();
       res.send(result);
     });
